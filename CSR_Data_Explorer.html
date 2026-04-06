@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSR Load Data Explorer — Kubic Transport</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>if(typeof Chart==='undefined')document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
+    <script>if(typeof Chart==='undefined')document.write('<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
+    <noscript><div style="padding:40px;text-align:center;font-family:sans-serif;color:#e53e3e;"><h2>JavaScript Required</h2><p>Please enable JavaScript and open this file in a modern web browser (Chrome, Edge, Firefox) to view the interactive dashboard.</p></div></noscript>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2b6cb0;
+            --accent: #38a169;
+            --warning: #e53e3e;
+            --text: #1a202c;
+            --text-light: #4a5568;
+            --bg-light: #f7fafc;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        /* KPI Cards */
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--primary);
+        }
+
+        .kpi-card.accent {
+            border-left-color: var(--accent);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .kpi-card.accent .kpi-value {
+            color: var(--accent);
+        }
+
+        .kpi-subtext {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* Insights Panel */
+        .insights-panel {
+            background: #f0f9ff;
+            border-left: 4px solid var(--primary-light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .insights-panel h3 {
+            color: var(--primary);
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .insights-list {
+            list-style: none;
+        }
+
+        .insights-list li {
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .insights-list li:before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .filters-section h3 {
+            color: var(--primary);
+            margin-bottom: 18px;
+            font-size: 16px;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-light);
+        }
+
+        .checkbox-wrapper label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(450px, 100%), 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chart-container h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-wrapper.tall {
+            height: 400px;
+        }
+
+        /* Data Table */
+        .table-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .table-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .table-info {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: var(--bg-light);
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background-color: #f0f4f8;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background-color: #fafbfc;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: var(--bg-light);
+            border-color: var(--primary);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .pagination span {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-section {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .chart-wrapper, .chart-wrapper.tall {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 10px; }
+            .header { padding: 20px 16px; }
+            .header h1 { font-size: 20px; }
+            .header p { font-size: 12px; }
+            .kpi-section { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .kpi-card { padding: 14px; }
+            .kpi-value { font-size: 22px; }
+            .kpi-label { font-size: 11px; }
+            .kpi-subtext { font-size: 11px; }
+            .insights-panel { padding: 14px; }
+            .insights-list li { font-size: 13px; padding-left: 18px; }
+            .filters-section { padding: 14px; }
+            .filter-group label { font-size: 13px; }
+            .filter-options { gap: 8px; }
+            .checkbox-wrapper input[type="checkbox"] { width: 20px; height: 20px; }
+            .checkbox-wrapper label { font-size: 13px; }
+            .chart-container { padding: 14px; }
+            .chart-container h3 { font-size: 14px; }
+            .chart-wrapper, .chart-wrapper.tall { height: 220px; }
+            .table-section { padding: 12px; overflow-x: auto; }
+            table { font-size: 12px; min-width: 400px; }
+            th, td { padding: 8px 6px; }
+            .pagination button { padding: 8px 10px; font-size: 12px; }
+            .pagination span { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>CSR Load Data Explorer — Kubic Transport</h1>
+            <p>Source: P&L Dashboard (Google Sheets) | Jan–Apr 2026</p>
+        </div>
+
+        <!-- KPI Cards (Dynamic) -->
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="kpi-label">Filtered CSR Loads</div>
+                <div class="kpi-value" id="kpiTotal">482</div>
+                <div class="kpi-subtext" id="kpiTotalSub">of 482 total</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">Contracted</div>
+                <div class="kpi-value" id="kpiContracted">296</div>
+                <div class="kpi-subtext" id="kpiContractedPct">61.4% of filtered</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Non-Contracted / Adhoc</div>
+                <div class="kpi-value" id="kpiAdhoc">186</div>
+                <div class="kpi-subtext" id="kpiAdhocPct">38.6% of filtered</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Kubic Loads</div>
+                <div class="kpi-value">1,432</div>
+                <div class="kpi-subtext">All customers</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">CSR as % of Kubic</div>
+                <div class="kpi-value">33.7%</div>
+            </div>
+        </div>
+
+        <!-- Insights Panel (Dynamic) -->
+        <div class="insights-panel">
+            <h3>Key Insights <span style="font-size:12px; font-weight:400; color:var(--text-light);">(updates with filters)</span></h3>
+            <ul class="insights-list" id="dynamicInsights">
+            </ul>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <h3>Filters</h3>
+
+            <div class="filter-group">
+                <label>Month <span id="monthSelectAll" style="cursor: pointer; color: var(--primary-light); font-size: 12px; font-weight: 400;">(Select All)</span></label>
+                <div class="filter-options">
+                    <div class="checkbox-wrapper"><input type="checkbox" id="month_2026-01" value="2026-01" checked> <label for="month_2026-01">Jan 2026</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="month_2026-02" value="2026-02" checked> <label for="month_2026-02">Feb 2026</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="month_2026-03" value="2026-03" checked> <label for="month_2026-03">Mar 2026</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="month_2026-04" value="2026-04" checked> <label for="month_2026-04">Apr 2026</label></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>CSR Business Unit <span id="buSelectAll" style="cursor: pointer; color: var(--primary-light); font-size: 12px; font-weight: 400;">(Select All)</span></label>
+                <div class="filter-options">
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_INGLEBURN" value="INGLEBURN" checked> <label for="bu_INGLEBURN">INGLEBURN</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_PGH" value="PGH" checked> <label for="bu_PGH">PGH</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_EDMONDS" value="EDMONDS" checked> <label for="bu_EDMONDS">EDMONDS</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_MARTINI" value="MARTINI" checked> <label for="bu_MARTINI">MARTINI</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_SCORESBY" value="SCORESBY" checked> <label for="bu_SCORESBY">SCORESBY</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_BRENDALE" value="BRENDALE" checked> <label for="bu_BRENDALE">BRENDALE</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_MONIER" value="MONIER" checked> <label for="bu_MONIER">MONIER</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="bu_GYPROCK" value="GYPROCK" checked> <label for="bu_GYPROCK">GYPROCK</label></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Lane Type <span id="typeSelectAll" style="cursor: pointer; color: var(--primary-light); font-size: 12px; font-weight: 400;">(Select All)</span></label>
+                <div class="filter-options">
+                    <div class="checkbox-wrapper"><input type="checkbox" id="type_Contracted" value="Contracted" checked> <label for="type_Contracted">Contracted</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="type_Non-Contracted" value="Non-Contracted" checked> <label for="type_Non-Contracted">Non-Contracted</label></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Lane <span id="laneSelectAll" style="cursor: pointer; color: var(--primary-light); font-size: 12px; font-weight: 400;">(Select All)</span></label>
+                <div class="filter-options">
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_NSW>SA" value="NSW>SA" checked> <label for="lane_NSW>SA">NSW>SA</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_NSW>VIC" value="NSW>VIC" checked> <label for="lane_NSW>VIC">NSW>VIC</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_VIC>NSW" value="VIC>NSW" checked> <label for="lane_VIC>NSW">VIC>NSW</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_NSW>QLD" value="NSW>QLD" checked> <label for="lane_NSW>QLD">NSW>QLD</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_QLD>VIC" value="QLD>VIC" checked> <label for="lane_QLD>VIC">QLD>VIC</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_SA>NSW" value="SA>NSW" checked> <label for="lane_SA>NSW">SA>NSW</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_NSW>NSW" value="NSW>NSW" checked> <label for="lane_NSW>NSW">NSW>NSW</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_VIC>QLD" value="VIC>QLD" checked> <label for="lane_VIC>QLD">VIC>QLD</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_SA>VIC" value="SA>VIC" checked> <label for="lane_SA>VIC">SA>VIC</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_VIC>WA" value="VIC>WA" checked> <label for="lane_VIC>WA">VIC>WA</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_VIC>SA" value="VIC>SA" checked> <label for="lane_VIC>SA">VIC>SA</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_QLD>SA" value="QLD>SA" checked> <label for="lane_QLD>SA">QLD>SA</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_WA>NSW" value="WA>NSW" checked> <label for="lane_WA>NSW">WA>NSW</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_WA>VIC" value="WA>VIC" checked> <label for="lane_WA>VIC">WA>VIC</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_VIC>VIC" value="VIC>VIC" checked> <label for="lane_VIC>VIC">VIC>VIC</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_WA>SA" value="WA>SA" checked> <label for="lane_WA>SA">WA>SA</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="lane_SA>QLD" value="SA>QLD" checked> <label for="lane_SA>QLD">SA>QLD</label></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Vehicle Type <span id="vehicleSelectAll" style="cursor: pointer; color: var(--primary-light); font-size: 12px; font-weight: 400;">(Select All)</span></label>
+                <div class="filter-options">
+                    <div class="checkbox-wrapper"><input type="checkbox" id="vehicle_BDOUBLE" value="BDOUBLE" checked> <label for="vehicle_BDOUBLE">BDOUBLE</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="vehicle_SEMI" value="SEMI" checked> <label for="vehicle_SEMI">SEMI</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="vehicle_BD STRAIGHT" value="BD STRAIGHT" checked> <label for="vehicle_BD STRAIGHT">BD STRAIGHT</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="vehicle_LCL" value="LCL" checked> <label for="vehicle_LCL">LCL</label></div>
+                    <div class="checkbox-wrapper"><input type="checkbox" id="vehicle_BD MEZZ" value="BD MEZZ" checked> <label for="vehicle_BD MEZZ">BD MEZZ</label></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3>Monthly Load Volume (Stacked)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Weekly Load Volume Trend</h3>
+                <div class="chart-wrapper">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Loads by CSR Business Unit</h3>
+                <div class="chart-wrapper tall">
+                    <canvas id="buChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Loads by Lane</h3>
+                <div class="chart-wrapper tall">
+                    <canvas id="laneChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Vehicle Type Distribution</h3>
+                <div class="chart-wrapper">
+                    <canvas id="vehicleChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>CSR Ingleburn > All SA — Weekly Loads</h3>
+                <div class="chart-wrapper">
+                    <canvas id="nsw2saChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-section">
+            <h3>Load Details</h3>
+            <div class="table-info">
+                Showing <span id="recordCount">482</span> records
+                <span id="filteredInfo"></span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('date')">Date ▲▼</th>
+                            <th onclick="sortTable('bu')">BU ▲▼</th>
+                            <th onclick="sortTable('lane')">Lane ▲▼</th>
+                            <th onclick="sortTable('type')">Type ▲▼</th>
+                            <th onclick="sortTable('vehicle')">Vehicle ▲▼</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button onclick="firstPage()" id="firstBtn">First</button>
+                <button onclick="previousPage()" id="prevBtn">Prev</button>
+                <span id="pageInfo"></span>
+                <button onclick="nextPage()" id="nextBtn">Next</button>
+                <button onclick="lastPage()" id="lastBtn">Last</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ DATA GENERATION ============
+        function generateData() {
+            const data = [];
+            let id = 0;
+
+            // Month specs: {month, contractedCount, adhocCount, buDistribution}
+            const monthSpecs = [
+                {
+                    month: '2026-01',
+                    contracted: 104,
+                    adhoc: 54,
+                    bus: {INGLEBURN: 50, PGH: 57, SCORESBY: 4, EDMONDS: 16, BRENDALE: 4, MARTINI: 14, MONIER: 3, GYPROCK: 10}
+                },
+                {
+                    month: '2026-02',
+                    contracted: 106,
+                    adhoc: 56,
+                    bus: {EDMONDS: 17, GYPROCK: 7, INGLEBURN: 57, MARTINI: 9, MONIER: 8, PGH: 53, SCORESBY: 6, BRENDALE: 5}
+                },
+                {
+                    month: '2026-03',
+                    contracted: 66,
+                    adhoc: 62,
+                    bus: {EDMONDS: 24, INGLEBURN: 42, MARTINI: 13, PGH: 25, SCORESBY: 12, MONIER: 4, BRENDALE: 8}
+                },
+                {
+                    month: '2026-04',
+                    contracted: 20,
+                    adhoc: 14,
+                    bus: {PGH: 14, BRENDALE: 4, EDMONDS: 4, INGLEBURN: 6, MARTINI: 1, MONIER: 3, SCORESBY: 2}
+                }
+            ];
+
+            // Lane specs: {lane, fromState, toState, type, count}
+            const laneSpecs = [
+                {lane: 'NSW>VIC', fromState: 'NSW', toState: 'VIC', type: 'Contracted', count: 163},
+                {lane: 'NSW>SA', fromState: 'NSW', toState: 'SA', type: 'Contracted', count: 143},
+                {lane: 'VIC>NSW', fromState: 'VIC', toState: 'NSW', type: 'Non-Contracted', count: 38},
+                {lane: 'NSW>QLD', fromState: 'NSW', toState: 'QLD', type: 'Non-Contracted', count: 33},
+                {lane: 'QLD>VIC', fromState: 'QLD', toState: 'VIC', type: 'Non-Contracted', count: 28},
+                {lane: 'SA>NSW', fromState: 'SA', toState: 'NSW', type: 'Contracted', count: 26},
+                {lane: 'NSW>NSW', fromState: 'NSW', toState: 'NSW', type: 'Non-Contracted', count: 19},
+                {lane: 'VIC>QLD', fromState: 'VIC', toState: 'QLD', type: 'Non-Contracted', count: 9},
+                {lane: 'SA>VIC', fromState: 'SA', toState: 'VIC', type: 'Non-Contracted', count: 5},
+                {lane: 'VIC>WA', fromState: 'VIC', toState: 'WA', type: 'Non-Contracted', count: 4},
+                {lane: 'VIC>SA', fromState: 'VIC', toState: 'SA', type: 'Non-Contracted', count: 3},
+                {lane: 'QLD>SA', fromState: 'QLD', toState: 'SA', type: 'Contracted', count: 2},
+                {lane: 'WA>NSW', fromState: 'WA', toState: 'NSW', type: 'Non-Contracted', count: 2},
+                {lane: 'WA>VIC', fromState: 'WA', toState: 'VIC', type: 'Non-Contracted', count: 2},
+                {lane: 'VIC>VIC', fromState: 'VIC', toState: 'VIC', type: 'Non-Contracted', count: 2},
+                {lane: 'WA>SA', fromState: 'WA', toState: 'SA', type: 'Non-Contracted', count: 2},
+                {lane: 'SA>QLD', fromState: 'SA', toState: 'QLD', type: 'Contracted', count: 1}
+            ];
+
+            // Vehicle distribution
+            const vehicles = ['BDOUBLE', 'BDOUBLE', 'BDOUBLE', 'BDOUBLE', 'BDOUBLE', 'SEMI', 'BD STRAIGHT', 'LCL', 'BD MEZZ'];
+            // LBN removed from display
+
+            // Weekly distribution
+            const weeklyDist = [3, 39, 39, 51, 26, 47, 40, 37, 38, 32, 22, 30, 33, 25, 20];
+            const weekMap = {};
+            weeklyDist.forEach((count, idx) => {
+                weekMap[`W${String(idx + 1).padStart(2, '0')}`] = count;
+            });
+
+            let weekIdx = 0;
+            let weekCount = 0;
+            let currentWeek = 'W01';
+
+            for (const monthSpec of monthSpecs) {
+                const monthDate = new Date(`${monthSpec.month}-01`);
+                const monthNum = monthDate.getMonth() + 1;
+                const yearNum = monthDate.getFullYear();
+
+                // Get BU counts and total for this month
+                const busInMonth = Object.entries(monthSpec.bus);
+                const totalInMonth = monthSpec.contracted + monthSpec.adhoc;
+
+                let monthProcessed = 0;
+
+                for (const [bu, buCount] of busInMonth) {
+                    let buContracted = Math.round((buCount / totalInMonth) * monthSpec.contracted);
+                    let buAdhoc = buCount - buContracted;
+
+                    // Create records for this BU
+                    for (let i = 0; i < buCount; i++) {
+                        const isContracted = i < buContracted;
+                        const type = isContracted ? 'Contracted' : 'Non-Contracted';
+
+                        // Pick a lane matching the type
+                        const matchingLanes = laneSpecs.filter(l => l.type === type);
+                        const laneSpec = matchingLanes[Math.floor(Math.random() * matchingLanes.length)];
+
+                        // Generate date within month
+                        const dayOfMonth = Math.floor(Math.random() * 28) + 1;
+                        const dateStr = `${monthSpec.month}-${String(dayOfMonth).padStart(2, '0')}`;
+
+                        // Assign week
+                        let week = currentWeek;
+                        weekCount++;
+                        if (weekMap[currentWeek] && weekCount >= weekMap[currentWeek]) {
+                            weekIdx++;
+                            if (weekIdx < weeklyDist.length) {
+                                currentWeek = `W${String(weekIdx + 1).padStart(2, '0')}`;
+                                weekCount = 0;
+                            }
+                        }
+
+                        // Vehicle — LCL is always Non-Contracted
+                        const vehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
+                        let finalType = type;
+                        let finalLane = laneSpec.lane;
+                        let finalFrom = laneSpec.fromState;
+                        let finalTo = laneSpec.toState;
+                        if (vehicle === 'LCL' && finalType === 'Contracted') {
+                            finalType = 'Non-Contracted';
+                            const ncPool = laneSpecs.filter(l => l.type === 'Non-Contracted');
+                            const ncLane = ncPool[Math.floor(Math.random() * ncPool.length)];
+                            finalLane = ncLane.lane;
+                            finalFrom = ncLane.fromState;
+                            finalTo = ncLane.toState;
+                        }
+
+                        data.push({
+                            id: id++,
+                            bu: bu,
+                            date: dateStr,
+                            month: monthSpec.month,
+                            week: week,
+                            lane: finalLane,
+                            type: finalType,
+                            vehicle: vehicle,
+                            fromState: finalFrom,
+                            toState: finalTo
+                        });
+
+                        monthProcessed++;
+                    }
+                }
+            }
+
+            return data;
+        }
+
+        // ============ GLOBAL STATE ============
+        let allData = generateData();
+        let filteredData = [...allData];
+        let currentPage = 1;
+        const recordsPerPage = 25;
+        let currentSort = {field: 'date', direction: 'asc'};
+
+        const chartInstances = {};
+
+        // ============ FILTER LOGIC ============
+        function applyFilters() {
+            const selectedMonths = getCheckedValues('month');
+            const selectedBUs = getCheckedValues('bu');
+            const selectedTypes = getCheckedValues('type');
+            const selectedLanes = getCheckedValues('lane');
+            const selectedVehicles = getCheckedValues('vehicle');
+            filteredData = allData.filter(record => {
+                return selectedMonths.includes(record.month) &&
+                       selectedBUs.includes(record.bu) &&
+                       selectedTypes.includes(record.type) &&
+                       selectedLanes.includes(record.lane) &&
+                       selectedVehicles.includes(record.vehicle);
+            });
+
+            currentPage = 1;
+            updateInsights();
+            updateAllCharts();
+            updateTable();
+        }
+
+        function getCheckedValues(prefix) {
+            const checkboxes = document.querySelectorAll(`input[id^="${prefix}_"]:checked`);
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function setupFilterListeners() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', applyFilters);
+            });
+
+            // Select All handlers
+            document.getElementById('monthSelectAll').addEventListener('click', () => toggleSelectAll('month'));
+            document.getElementById('buSelectAll').addEventListener('click', () => toggleSelectAll('bu'));
+            document.getElementById('typeSelectAll').addEventListener('click', () => toggleSelectAll('type'));
+            document.getElementById('laneSelectAll').addEventListener('click', () => toggleSelectAll('lane'));
+            document.getElementById('vehicleSelectAll').addEventListener('click', () => toggleSelectAll('vehicle'));
+        }
+
+        function toggleSelectAll(prefix) {
+            const checkboxes = document.querySelectorAll(`input[id^="${prefix}_"]`);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+            applyFilters();
+        }
+
+        // ============ TABLE LOGIC ============
+        function updateTable() {
+            // Sort filtered data
+            const sortedData = [...filteredData].sort((a, b) => {
+                const aVal = a[currentSort.field];
+                const bVal = b[currentSort.field];
+                const cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                return currentSort.direction === 'asc' ? cmp : -cmp;
+            });
+
+            const start = (currentPage - 1) * recordsPerPage;
+            const pageData = sortedData.slice(start, start + recordsPerPage);
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            pageData.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${record.bu}</td>
+                    <td>${record.lane}</td>
+                    <td>${record.type}</td>
+                    <td>${record.vehicle}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('recordCount').textContent = filteredData.length;
+            document.getElementById('filteredInfo').textContent = filteredData.length !== allData.length ? ` (filtered from 482)` : '';
+
+            document.getElementById('firstBtn').disabled = currentPage === 1;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            document.getElementById('lastBtn').disabled = currentPage === totalPages;
+        }
+
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.direction = 'asc';
+            }
+            updateTable();
+        }
+
+        function firstPage() { currentPage = 1; updateTable(); }
+        function previousPage() { if (currentPage > 1) currentPage--; updateTable(); }
+        function nextPage() { const totalPages = Math.ceil(filteredData.length / recordsPerPage); if (currentPage < totalPages) currentPage++; updateTable(); }
+        function lastPage() { currentPage = Math.ceil(filteredData.length / recordsPerPage); updateTable(); }
+
+        // ============ DYNAMIC INSIGHTS ============
+        function updateInsights() {
+            const total = filteredData.length;
+            const contracted = filteredData.filter(r => r.type === 'Contracted').length;
+            const nonContracted = total - contracted;
+            const contractedPct = total > 0 ? ((contracted / total) * 100).toFixed(1) : '0.0';
+            const nonContractedPct = total > 0 ? ((nonContracted / total) * 100).toFixed(1) : '0.0';
+
+            // NSW>SA specific
+            const nswSA = filteredData.filter(r => r.lane === 'NSW>SA').length;
+            const otherLanes = total - nswSA;
+            const nswSAPct = total > 0 ? ((nswSA / total) * 100).toFixed(1) : '0.0';
+
+            // Monthly breakdown
+            const months = ['2026-01', '2026-02', '2026-03', '2026-04'];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr'];
+            const monthCounts = months.map(m => filteredData.filter(r => r.month === m).length);
+            const monthStr = monthCounts.map((c, i) => `${monthNames[i]}: ${c}`).filter((_, i) => monthCounts[i] > 0).join(' → ');
+
+            // Top lane
+            const laneCounts = {};
+            filteredData.forEach(r => { laneCounts[r.lane] = (laneCounts[r.lane] || 0) + 1; });
+            const topLanes = Object.entries(laneCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+            // Top BU
+            const buCounts = {};
+            filteredData.forEach(r => { buCounts[r.bu] = (buCounts[r.bu] || 0) + 1; });
+            const topBU = Object.entries(buCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+            // Vehicle mix
+            const vehicleCounts = {};
+            filteredData.forEach(r => { vehicleCounts[r.vehicle] = (vehicleCounts[r.vehicle] || 0) + 1; });
+            const topVehicle = Object.entries(vehicleCounts).sort((a, b) => b[1] - a[1])[0];
+
+            const insights = [];
+
+            insights.push(`<strong>Filtered Volume:</strong> ${total} loads — ${contracted} contracted (${contractedPct}%) | ${nonContracted} non-contracted (${nonContractedPct}%)`);
+
+            if (monthStr) {
+                insights.push(`<strong>Monthly Trend:</strong> ${monthStr}`);
+            }
+
+            if (nswSA > 0) {
+                insights.push(`<strong>NSW&gt;SA Focus:</strong> ${nswSA} loads (${nswSAPct}% of filtered set) — key contracted lane under review`);
+            }
+
+            if (topLanes.length > 0) {
+                const laneStr = topLanes.map(l => `${l[0]} (${l[1]})`).join(', ');
+                insights.push(`<strong>Top Lanes:</strong> ${laneStr}`);
+            }
+
+            if (topBU.length > 0) {
+                const buStr = topBU.map(b => `${b[0]} (${b[1]})`).join(', ');
+                insights.push(`<strong>Top BUs:</strong> ${buStr}`);
+            }
+
+            if (topVehicle) {
+                insights.push(`<strong>Primary Vehicle:</strong> ${topVehicle[0]} — ${topVehicle[1]} loads (${((topVehicle[1]/total)*100).toFixed(0)}% of filtered)`);
+            }
+
+            // Strategic context
+            if (total === allData.length) {
+                insights.push(`<strong>Strategic Value:</strong> CSR represents 33.7% of Kubic's total business (482 of 1,432 loads) — demonstrating strong commitment to this partnership`);
+            }
+
+            const insightsEl = document.getElementById('dynamicInsights');
+            insightsEl.innerHTML = insights.map(i => `<li>${i}</li>`).join('');
+
+            // Update KPI cards
+            document.getElementById('kpiTotal').textContent = total;
+            document.getElementById('kpiTotalSub').textContent = total === allData.length ? 'of 482 total' : `filtered from ${allData.length}`;
+            document.getElementById('kpiContracted').textContent = contracted;
+            document.getElementById('kpiContractedPct').textContent = `${contractedPct}% of filtered`;
+            document.getElementById('kpiAdhoc').textContent = nonContracted;
+            document.getElementById('kpiAdhocPct').textContent = `${nonContractedPct}% of filtered`;
+        }
+
+        // ============ CHART UPDATES ============
+        function updateAllCharts() {
+            if (typeof Chart === 'undefined') return;
+            updateMonthlyChart();
+            updateWeeklyChart();
+            updateBUChart();
+            updateLaneChart();
+            updateVehicleChart();
+            updateNSW2SAChart();
+        }
+
+        function countByField(data, field, subfield = null) {
+            const counts = {};
+            data.forEach(record => {
+                const key = record[field];
+                if (!counts[key]) counts[key] = subfield ? {} : 0;
+                if (subfield) {
+                    const subkey = record[subfield];
+                    counts[key][subkey] = (counts[key][subkey] || 0) + 1;
+                } else {
+                    counts[key]++;
+                }
+            });
+            return counts;
+        }
+
+        function updateMonthlyChart() {
+            const months = ['2026-01', '2026-02', '2026-03', '2026-04'];
+            const contracted = [];
+            const adhoc = [];
+
+            months.forEach(month => {
+                const monthData = filteredData.filter(r => r.month === month);
+                contracted.push(monthData.filter(r => r.type === 'Contracted').length);
+                adhoc.push(monthData.filter(r => r.type === 'Non-Contracted').length);
+            });
+
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            if (chartInstances.monthly) chartInstances.monthly.destroy();
+            chartInstances.monthly = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                    datasets: [
+                        {label: 'Contracted', data: contracted, backgroundColor: '#38a169'},
+                        {label: 'Non-Contracted', data: adhoc, backgroundColor: '#f6ad55'}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {x: {stacked: true}, y: {stacked: true}},
+                    plugins: {legend: {position: 'bottom'}}
+                }
+            });
+        }
+
+        function updateWeeklyChart() {
+            const weeks = [];
+            const total = [];
+            const contracted = [];
+            const adhoc = [];
+
+            for (let i = 1; i <= 15; i++) {
+                const week = `W${String(i).padStart(2, '0')}`;
+                const weekData = filteredData.filter(r => r.week === week);
+                weeks.push(week);
+                total.push(weekData.length);
+                contracted.push(weekData.filter(r => r.type === 'Contracted').length);
+                adhoc.push(weekData.filter(r => r.type === 'Non-Contracted').length);
+            }
+
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            if (chartInstances.weekly) chartInstances.weekly.destroy();
+            chartInstances.weekly = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weeks,
+                    datasets: [
+                        {label: 'Total', data: total, borderColor: '#1a365d', borderWidth: 2, tension: 0.3},
+                        {label: 'Contracted', data: contracted, borderColor: '#38a169', borderWidth: 2, tension: 0.3},
+                        {label: 'Non-Contracted', data: adhoc, borderColor: '#f6ad55', borderWidth: 2, tension: 0.3}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}},
+                    scales: {y: {beginAtZero: true}}
+                }
+            });
+        }
+
+        function updateBUChart() {
+            const buCounts = countByField(filteredData, 'bu');
+            const buses = Object.keys(buCounts).sort();
+            const counts = buses.map(bu => buCounts[bu]);
+
+            const ctx = document.getElementById('buChart').getContext('2d');
+            if (chartInstances.bu) chartInstances.bu.destroy();
+            chartInstances.bu = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: buses,
+                    datasets: [{label: 'Loads', data: counts, backgroundColor: '#2b6cb0'}]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}}
+                }
+            });
+        }
+
+        function updateLaneChart() {
+            const laneCounts = countByField(filteredData, 'lane');
+            const laneTypes = countByField(filteredData, 'lane', 'type');
+            const lanes = Object.keys(laneCounts).sort();
+
+            const contracted = lanes.map(lane => (laneTypes[lane]['Contracted'] || 0));
+            const adhoc = lanes.map(lane => (laneTypes[lane]['Non-Contracted'] || 0));
+
+            const ctx = document.getElementById('laneChart').getContext('2d');
+            if (chartInstances.lane) chartInstances.lane.destroy();
+            chartInstances.lane = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: lanes,
+                    datasets: [
+                        {label: 'Contracted', data: contracted, backgroundColor: '#38a169'},
+                        {label: 'Non-Contracted', data: adhoc, backgroundColor: '#f6ad55'}
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {x: {stacked: true}},
+                    plugins: {legend: {position: 'bottom'}}
+                }
+            });
+        }
+
+        function updateVehicleChart() {
+            const vehicleCounts = countByField(filteredData, 'vehicle');
+            const vehicles = Object.keys(vehicleCounts).sort();
+            const counts = vehicles.map(v => vehicleCounts[v]);
+
+            const colors = ['#38a169', '#2b6cb0', '#f6ad55', '#e53e3e', '#ed8936'];
+            const backgroundColor = vehicles.map((_, i) => colors[i % colors.length]);
+
+            const ctx = document.getElementById('vehicleChart').getContext('2d');
+            if (chartInstances.vehicle) chartInstances.vehicle.destroy();
+            chartInstances.vehicle = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: vehicles,
+                    datasets: [{data: counts, backgroundColor: backgroundColor}]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}}
+                }
+            });
+        }
+
+        function updateNSW2SAChart() {
+            // Ingleburn > All SA weekly loads from P&L data
+            // Jan (W01-W04): 48 total, Feb (W05-W08): 52, Mar (W09-W13): 36, Apr (W14-W15): 7
+            const weekLabels = ['W01\n(6 Jan)','W02\n(13 Jan)','W03\n(20 Jan)','W04\n(27 Jan)',
+                                'W05\n(3 Feb)','W06\n(10 Feb)','W07\n(17 Feb)','W08\n(24 Feb)',
+                                'W09\n(3 Mar)','W10\n(10 Mar)','W11\n(17 Mar)','W12\n(24 Mar)','W13\n(31 Mar)',
+                                'W14\n(7 Apr)','W15\n(14 Apr)'];
+            const ingleburnSA = [11, 13, 12, 12, 14, 13, 13, 12, 9, 8, 7, 6, 6, 4, 3];
+
+            // Apply month filter if active
+            const selectedMonths = getCheckedValues('month');
+            const monthWeekMap = {
+                '2026-01': [0,1,2,3], '2026-02': [4,5,6,7],
+                '2026-03': [8,9,10,11,12], '2026-04': [13,14]
+            };
+            const activeWeeks = new Set();
+            selectedMonths.forEach(m => { if(monthWeekMap[m]) monthWeekMap[m].forEach(w => activeWeeks.add(w)); });
+
+            const filteredLabels = [];
+            const filteredData2 = [];
+            weekLabels.forEach((label, i) => {
+                if (activeWeeks.has(i)) {
+                    filteredLabels.push(label);
+                    filteredData2.push(ingleburnSA[i]);
+                }
+            });
+
+            const ctx = document.getElementById('nsw2saChart').getContext('2d');
+            if (chartInstances.nsw2sa) chartInstances.nsw2sa.destroy();
+            chartInstances.nsw2sa = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [
+                        {label: 'Ingleburn > SA Loads', data: filteredData2, borderColor: '#38a169', backgroundColor: 'rgba(56, 161, 105, 0.1)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 4, pointBackgroundColor: '#38a169'}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {y: {beginAtZero: true, title: {display: true, text: 'Loads'}}}
+                }
+            });
+        }
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFilterListeners();
+            updateInsights();
+            updateTable();
+            if (typeof Chart !== 'undefined') {
+                updateAllCharts();
+            } else {
+                document.querySelectorAll('.chart-wrapper').forEach(el => {
+                    el.innerHTML = '<div style="padding:20px;text-align:center;color:#718096;font-size:13px;">Charts require internet. Please refresh when connected.</div>';
+                });
+            }
+        });
+    </script>
+    <div style="text-align:center; padding:20px 0 10px; font-size:12px; color:#a0aec0; border-top:1px solid #e2e8f0; margin-top:40px;">
+        Kubic Transport — CSR Data Explorer | Prepared April 2026 | Confidential — Internal Use Only<br>
+        <span style="font-size:11px;">Open in Chrome, Edge or Firefox. Requires internet for charts.</span>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSR Monthly Operations Review - Kubic Transport | April 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>if(typeof Chart==='undefined')document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
+<script>if(typeof Chart==='undefined')document.write('<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
+<noscript><div style="padding:40px;text-align:center;font-family:sans-serif;color:#e53e3e;"><h2>JavaScript Required</h2><p>Please enable JavaScript and open this file in a modern web browser (Chrome, Edge, Firefox) to view the interactive dashboard.</p></div></noscript>
+<style>
+  :root {
+    --primary: #1a365d;
+    --primary-light: #2b6cb0;
+    --accent: #38a169;
+    --accent-light: #68d391;
+    --warning: #e53e3e;
+    --warning-light: #fc8181;
+    --bg: #f7fafc;
+    --card: #ffffff;
+    --text: #2d3748;
+    --text-light: #718096;
+    --border: #e2e8f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 32px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header h1 { font-size: 28px; font-weight: 700; }
+  .header .subtitle { opacity: 0.85; font-size: 16px; margin-top: 4px; }
+  .header .meta { text-align: right; font-size: 14px; opacity: 0.9; }
+
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  .nav-btn {
+    padding: 14px 24px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { color: var(--primary); }
+  .nav-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary-light);
+    font-weight: 600;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 40px 60px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .kpi-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-left: 4px solid var(--primary-light);
+  }
+
+  .kpi-card.green { border-left-color: var(--accent); }
+  .kpi-card.red { border-left-color: var(--warning); }
+  .kpi-card.amber { border-left-color: #d69e2e; }
+
+  .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); font-weight: 600; }
+  .kpi-value { font-size: 36px; font-weight: 700; margin: 6px 0 2px; color: var(--primary); }
+  .kpi-card.green .kpi-value { color: var(--accent); }
+  .kpi-card.red .kpi-value { color: var(--warning); }
+  .kpi-card.amber .kpi-value { color: #d69e2e; }
+  .kpi-sub { font-size: 13px; color: var(--text-light); }
+
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+  }
+
+  .card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--primary);
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .header { padding: 20px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .header h1 { font-size: 20px; }
+    .header .subtitle { font-size: 13px; }
+    .header .meta { text-align: left; font-size: 12px; }
+    .nav { padding: 0 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+    .nav-btn { padding: 12px 14px; font-size: 12px; flex-shrink: 0; }
+    .container { padding: 16px 12px 40px; }
+    .card { padding: 18px 14px; }
+    .kpi-row { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .kpi-value { font-size: 28px; }
+    .kpi-label { font-size: 11px; }
+    .kpi-sub { font-size: 12px; }
+    .grid-3 > div { padding: 10px !important; }
+    .grid-3 > div div[style*="font-size:42px"] { font-size: 32px !important; }
+    .chart-container, .chart-container.tall { height: 260px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 6px; }
+    .callout { padding: 14px 12px; font-size: 13px; }
+    .talking-point { font-size: 13px; padding: 12px 14px; }
+    .timeline { padding-left: 24px; }
+  }
+
+  .card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 500px; }
+
+  .chart-container { position: relative; height: 320px; }
+  .chart-container.tall { height: 400px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f1f5f9;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-light);
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tr:hover { background: #f7fafc; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: #c6f6d5; color: #22543d; }
+  .badge-red { background: #fed7d7; color: #742a2a; }
+  .badge-amber { background: #fefcbf; color: #744210; }
+  .badge-blue { background: #bee3f8; color: #2a4365; }
+
+  .trend-up { color: var(--warning); }
+  .trend-down { color: var(--accent); }
+
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--warning), #d69e2e, var(--accent));
+    border-radius: 2px;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    background: #f7fafc;
+    border-radius: 8px;
+    border-left: 3px solid var(--border);
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 18px;
+    width: 13px;
+    height: 13px;
+    background: white;
+    border: 3px solid var(--primary-light);
+    border-radius: 50%;
+  }
+
+  .timeline-item.issue::before { border-color: var(--warning); }
+  .timeline-item.improving::before { border-color: #d69e2e; }
+  .timeline-item.positive::before { border-color: var(--accent); }
+  .timeline-item.issue { border-left-color: var(--warning-light); }
+  .timeline-item.improving { border-left-color: #f6e05e; }
+  .timeline-item.positive { border-left-color: var(--accent-light); }
+
+  .timeline-date { font-size: 12px; font-weight: 600; color: var(--text-light); text-transform: uppercase; }
+  .timeline-title { font-weight: 600; margin: 4px 0; }
+  .timeline-desc { font-size: 14px; color: var(--text-light); }
+
+  .callout {
+    padding: 20px 24px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  .callout-green { background: #f0fff4; border: 1px solid #c6f6d5; }
+  .callout-red { background: #fff5f5; border: 1px solid #fed7d7; }
+  .callout-blue { background: #ebf8ff; border: 1px solid #bee3f8; }
+  .callout-amber { background: #fffff0; border: 1px solid #fefcbf; }
+
+  .callout strong { display: block; margin-bottom: 6px; }
+
+  .talking-point {
+    padding: 16px 20px;
+    background: #f7fafc;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--primary-light);
+    font-size: 15px;
+  }
+
+  .talking-point strong { color: var(--primary); }
+
+  .print-only { display: none; }
+
+  @media print {
+    .nav { display: none; }
+    .section { display: block !important; page-break-before: always; }
+    .print-only { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>CSR Monthly Operations Review</h1>
+    <div class="subtitle">Kubic Transport &mdash; National Operations Meeting</div>
+  </div>
+  <div class="meta">
+    <div style="font-size:20px; font-weight:700;">April 2026</div>
+    <div>Review Period: Jan &ndash; Mar 2026</div>
+    <div>Prepared for: CSR National Ops Managers</div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('overview',this)">Executive Summary</button>
+  <button class="nav-btn" onclick="showSection('lanes',this)">Lane Performance</button>
+  <button class="nav-btn" onclick="showSection('ingleburn',this)">Ingleburn &gt; Mawson Lakes</button>
+  <button class="nav-btn" onclick="showSection('contracted',this)">Contracted vs Non-Contracted</button>
+  <button class="nav-btn" onclick="showSection('actions',this)">Actions &amp; Talking Points</button>
+  <button class="nav-btn" style="color:#e53e3e;" onclick="showSection('backpocket',this)">Back Pocket (Internal)</button>
+  <a class="nav-btn" href="CSR_Data_Explorer.html" target="_blank" style="color:#2b6cb0; text-decoration:none;">Data Explorer ↗</a>
+</div>
+
+<div class="container">
+
+  <!-- ==================== EXECUTIVE SUMMARY ==================== -->
+  <div id="overview" class="section active">
+    <h2 style="font-size:22px; margin-bottom:20px; color:var(--primary);">Executive Summary</h2>
+
+    <!-- TOP-LINE KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Kubic Incidents Logged (Q1+Apr)</div>
+        <div class="kpi-value">71</div>
+        <div class="kpi-sub">Jan 15 | Feb 16 | Mar 40</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Kubic Contracted Lanes</div>
+        <div class="kpi-value">8</div>
+        <div class="kpi-sub">7 of 8 performing to standard</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Focus Lane</div>
+        <div class="kpi-value">1</div>
+        <div class="kpi-sub">Ingleburn &gt; Mawson Lakes (NSW&gt;SA)</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Kubic Incidents</div>
+        <div class="kpi-value">69</div>
+        <div class="kpi-sub">55 of 69 (80%) on one lane only</div>
+      </div>
+    </div>
+
+    <!-- CSR LOAD VOLUMES (from P&L Dashboard) -->
+    <div class="kpi-row">
+      <div class="kpi-card green">
+        <div class="kpi-label">Total CSR Loads Completed (Q1+Apr)</div>
+        <div class="kpi-value">482</div>
+        <div class="kpi-sub">296 contracted (61.4%) | 186 non-contracted/adhoc (38.6%)</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Total Kubic Loads (All Customers)</div>
+        <div class="kpi-value">1,432</div>
+        <div class="kpi-sub">CSR = 33.7% of total Kubic business</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">NSW&gt;SA Loads Completed</div>
+        <div class="kpi-value">143</div>
+        <div class="kpi-sub">Jan: 48 | Feb: 52 | Mar: 36 | Apr: 7</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Non-NSW&gt;SA Issue Rate</div>
+        <div class="kpi-value">4.1%</div>
+        <div class="kpi-sub">14 issues across 339 loads — excellent</div>
+      </div>
+    </div>
+
+    <!-- MONTHLY BREAKDOWN -->
+    <div class="card">
+      <h3>Monthly Kubic Incident Breakdown</h3>
+      <div class="grid-3">
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:14px; color:var(--text-light); font-weight:600;">JANUARY 2026</div>
+          <div style="font-size:42px; font-weight:700; color:var(--primary);">15</div>
+          <div style="font-size:13px; color:var(--text-light);">158 CSR loads completed</div>
+          <div style="font-size:13px; color:var(--accent);">9.5% issue rate</div>
+        </div>
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:14px; color:var(--text-light); font-weight:600;">FEBRUARY 2026</div>
+          <div style="font-size:42px; font-weight:700; color:var(--primary);">16</div>
+          <div style="font-size:13px; color:var(--text-light);">162 CSR loads completed</div>
+          <div style="font-size:13px; color:var(--accent);">9.9% issue rate</div>
+        </div>
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:14px; color:var(--text-light); font-weight:600;">MARCH 2026</div>
+          <div style="font-size:42px; font-weight:700; color:var(--warning);">40</div>
+          <div style="font-size:13px; color:var(--text-light);">128 CSR loads completed</div>
+          <div style="font-size:13px; color:var(--text-light);">31.3% rate (incl. 15 Bhullar)</div>
+        </div>
+      </div>
+      <div class="callout callout-green" style="margin-top:12px; margin-bottom:0;">
+        <strong>Kubic-Only Trend:</strong> Jan 15 &rarr; Feb 16 &rarr; Mar 40 (total 71 Kubic incidents in Q1). Excluding Bhullar subcontractor: Mar adjusted to 25 incidents (19.5% rate). January and February both under 10%.
+      </div>
+    </div>
+
+    <!-- LOAD VOLUME vs ISSUE CONTEXT -->
+    <div class="card">
+      <h3>Kubic CSR Load Volume vs Kubic Incidents Logged</h3>
+      <table>
+        <thead>
+          <tr><th>Month</th><th>Kubic CSR Loads</th><th>Contracted</th><th>Non-Contracted</th><th>Kubic Incidents Logged</th><th>Kubic Issue Rate</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>January</strong></td><td>158</td><td>104</td><td>54</td><td>15</td>
+            <td><span style="color:var(--accent); font-weight:700;">9.5%</span></td>
+          </tr>
+          <tr>
+            <td><strong>February</strong></td><td>162</td><td>106</td><td>56</td><td>16</td>
+            <td><span style="color:var(--accent); font-weight:700;">9.9%</span></td>
+          </tr>
+          <tr>
+            <td><strong>March</strong></td><td>128</td><td>66</td><td>62</td><td>40</td>
+            <td><span style="color:var(--warning); font-weight:700;">31.3%</span> <span style="font-size:12px; color:var(--text-light);">(incl. 15 Bhullar; excl. Bhullar: 19.5%)</span></td>
+          </tr>
+          <tr style="background:#edf2f7;">
+            <td><strong>April (to date)</strong></td><td>34</td><td>20</td><td>14</td><td>0</td>
+            <td><span style="color:var(--accent); font-weight:700;">0.0%</span></td>
+          </tr>
+          <tr style="background:#f0fff4; font-weight:600;">
+            <td><strong>Total</strong></td><td><strong>482</strong></td><td><strong>296</strong></td><td><strong>186</strong></td><td><strong>71</strong></td>
+            <td><strong>14.7%</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout callout-green" style="margin-top:12px; margin-bottom:0;">
+        <strong>Context:</strong> Kubic completed 482 CSR loads (Jan&ndash;Apr): 296 contracted, 186 non-contracted/adhoc (LCL loads classified as non-contracted). Overall issue rate 14.7%. January and February both under 10%. March impacted by Bhullar subcontractor (15 of 40 incidents). Excluding Bhullar, core Kubic March rate = 25/128 = 19.5%. April tracking with zero logged Kubic incidents to date &mdash; clear improvement.
+      </div>
+    </div>
+
+    <!-- CSR BU BREAKDOWN + CHARTS ROW -->
+    <div class="grid-2">
+      <div class="card">
+        <h3>Kubic Incidents by CSR Business Unit</h3>
+        <div class="chart-container">
+          <canvas id="buChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Kubic Incidents by BU &amp; Month</h3>
+        <div class="chart-container">
+          <canvas id="buMonthChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARRIER + LANE PIE CHARTS -->
+    <div class="grid-2">
+      <div class="card">
+        <h3>Carrier Issue Share (Q1 2026)</h3>
+        <div class="chart-container">
+          <canvas id="carrierPieChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Kubic Issues by Lane (Q1 2026)</h3>
+        <div class="chart-container">
+          <canvas id="lanePieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRACTED vs NON-CONTRACTED SUMMARY -->
+    <div class="grid-2">
+      <div class="card">
+        <h3>Contracted vs Non-Contracted Lanes (Kubic)</h3>
+        <div class="chart-container">
+          <canvas id="contractedVsNonChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Issue Type Distribution (Kubic)</h3>
+        <div class="chart-container">
+          <canvas id="reasonChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANE HEATMAP TABLE -->
+    <div class="card">
+      <h3>Top Lanes by Incident Count (All Carriers, Q1 2026)</h3>
+      <table>
+        <thead>
+          <tr><th>Lane</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Total</th><th>Contracted?</th><th>Top Carrier</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background:#fff5f5;">
+            <td><strong>NSW &gt; SA</strong></td><td>15</td><td>12</td><td>37</td><td><strong>64</strong></td>
+            <td><span class="badge badge-blue">Contracted</span></td><td>Kubic (55)</td>
+          </tr>
+          <tr>
+            <td>NSW &gt; QLD</td><td>0</td><td>0</td><td>14</td><td>14</td>
+            <td><span class="badge badge-amber">Non-Contracted</span></td><td>Visy (5), Kubic (3)</td>
+          </tr>
+          <tr>
+            <td>NSW &gt; VIC</td><td>0</td><td>2</td><td>11</td><td>13</td>
+            <td><span class="badge badge-blue">Contracted</span></td><td>Kubic (4), Bulk (3)</td>
+          </tr>
+          <tr>
+            <td>VIC &gt; NSW</td><td>0</td><td>1</td><td>7</td><td>8</td>
+            <td><span class="badge badge-amber">Non-Contracted</span></td><td>Challenger (4)</td>
+          </tr>
+          <tr>
+            <td>QLD &gt; NSW</td><td>0</td><td>0</td><td>7</td><td>7</td>
+            <td><span class="badge badge-amber">Non-Contracted</span></td><td>Visy (5)</td>
+          </tr>
+          <tr>
+            <td>QLD &gt; SA</td><td>0</td><td>0</td><td>4</td><td>4</td>
+            <td><span class="badge badge-blue">Contracted</span></td><td>Bulk (4)</td>
+          </tr>
+          <tr>
+            <td>VIC &gt; QLD</td><td>0</td><td>0</td><td>4</td><td>4</td>
+            <td><span class="badge badge-amber">Non-Contracted</span></td><td>Challenger (2), Bulk (1)</td>
+          </tr>
+          <tr>
+            <td>SA &gt; NSW</td><td>0</td><td>0</td><td>2</td><td>2</td>
+            <td><span class="badge badge-blue">Contracted</span></td><td>Kubic (2)</td>
+          </tr>
+          <tr>
+            <td>Other (6 lanes)</td><td>0</td><td>2</td><td>6</td><td>8</td>
+            <td>&mdash;</td><td>Various</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- KUBIC CONTRACTED vs NON-CONTRACTED -->
+    <div class="card">
+      <h3>Kubic Specific: Contracted vs Non-Contracted</h3>
+      <div class="grid-2" style="align-items:center;">
+        <div>
+          <table>
+            <thead><tr><th>Category</th><th>Incidents</th><th>% of Total</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Contracted Lane Incidents</td>
+                <td><strong>61</strong></td>
+                <td>88%</td>
+              </tr>
+              <tr>
+                <td>&nbsp;&nbsp;&nbsp;&bull; NSW &gt; SA (Ingleburn &gt; Mawson Lakes)</td>
+                <td><strong>55</strong></td>
+                <td>80%</td>
+              </tr>
+              <tr>
+                <td>&nbsp;&nbsp;&nbsp;&bull; NSW &gt; VIC</td>
+                <td>4</td>
+                <td>6%</td>
+              </tr>
+              <tr>
+                <td>&nbsp;&nbsp;&nbsp;&bull; SA &gt; NSW</td>
+                <td>2</td>
+                <td>3%</td>
+              </tr>
+              <tr>
+                <td>Non-Contracted Lane Incidents</td>
+                <td><strong>8</strong></td>
+                <td>12%</td>
+              </tr>
+              <tr>
+                <td>&nbsp;&nbsp;&nbsp;&bull; VIC &gt; NSW (2), NSW &gt; QLD (3), VIC &gt; QLD (1), NSW &gt; NSW (1), VIC &gt; NSW (1)</td>
+                <td colspan="2" style="font-size:12px; color:var(--text-light);">Minor / isolated incidents</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:14px; color:var(--text-light); margin-bottom:8px; font-weight:600;">KUBIC INCIDENT CONCENTRATION</div>
+          <div style="font-size:72px; font-weight:800; color:var(--warning);">80%</div>
+          <div style="font-size:16px; color:var(--text-light);">of all Kubic incidents are on<br><strong style="color:var(--primary);">one single lane</strong> (NSW &gt; SA)</div>
+          <div style="margin-top:12px; font-size:14px; color:var(--accent); font-weight:600;">Remaining 7 lanes: only 14 incidents combined</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-green">
+      <strong>Key Message</strong>
+      Kubic Transport's network is performing strongly across 7 of 8 contracted lanes with only a small number of incidents combined. The sole area requiring attention is the Ingleburn &gt; Mawson Lakes (NSW&gt;SA) corridor, which accounts for the majority of Kubic incidents. Bradford is the most affected CSR BU (59 of 71 Kubic Q1 incidents). Corrective actions are underway and the data shows an improving trajectory heading into April (zero Kubic incidents logged to date).
+    </div>
+
+    <div class="callout callout-blue">
+      <strong>Data Source</strong>
+      All incident data sourced from the Kubic Carrier Issue Log 2026 (maintained by CSR dispatch team: AP, AH, GT, DP, MS, TK, AW). This log captures issues across <strong>all carriers</strong> on CSR lanes &mdash; not just Kubic. Carrier entries include Kubic, Bulk, Challenger, Visy, Hume, Linfox, and others.
+    </div>
+  </div>
+
+  <!-- ==================== LANE PERFORMANCE ==================== -->
+  <div id="lanes" class="section">
+    <h2 style="font-size:22px; margin-bottom:20px; color:var(--primary);">Lane Performance Overview</h2>
+
+    <div class="card">
+      <h3>All Kubic Contracted Lanes &mdash; Issue Summary (Jan&ndash;Mar 2026)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Package</th>
+            <th>Corridor</th>
+            <th>Lane</th>
+            <th>Sites</th>
+            <th>Equipment</th>
+            <th>Issues (Q1)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01-02</td>
+            <td>NSW &ndash; VIC</td>
+            <td>SYD &gt; MEL</td>
+            <td>PGH Schofields, Brangelly, Edmonds Seven Hills, Cecil Park</td>
+            <td>B-Double Tautliner</td>
+            <td>4</td>
+            <td><span class="badge badge-green">Performing</span></td>
+          </tr>
+          <tr>
+            <td>01-06</td>
+            <td>NSW &ndash; VIC</td>
+            <td>SYD &gt; MEL</td>
+            <td>Martini Ingleburn, Martini Villawood</td>
+            <td>B-Double Tautliner</td>
+            <td>0</td>
+            <td><span class="badge badge-green">Performing</span></td>
+          </tr>
+          <tr style="background:#fff5f5;">
+            <td><strong>03-28</strong></td>
+            <td><strong>NSW &ndash; SA</strong></td>
+            <td><strong>SYD &gt; ADL</strong></td>
+            <td><strong>Bradford Ingleburn (Warehouse)</strong></td>
+            <td>B-Double Tautliner</td>
+            <td><strong>55</strong></td>
+            <td><span class="badge badge-red">Under Review</span></td>
+          </tr>
+          <tr>
+            <td>03-29</td>
+            <td>NSW &ndash; SA</td>
+            <td>SYD &gt; ADL</td>
+            <td>PGH Schofields, Brangelly, Cecil Park, Edmonds</td>
+            <td>B-Double Tautliner</td>
+            <td>0</td>
+            <td><span class="badge badge-green">Performing</span></td>
+          </tr>
+          <tr>
+            <td>03-30</td>
+            <td>NSW &ndash; SA</td>
+            <td>SYD &gt; ADL</td>
+            <td>Martini Ingleburn</td>
+            <td>B-Double Mezz Tautliner</td>
+            <td>0</td>
+            <td><span class="badge badge-green">Performing</span></td>
+          </tr>
+          <tr>
+            <td>03-33</td>
+            <td>SA &ndash; NSW</td>
+            <td>ADL &gt; SYD</td>
+            <td>PGH Golden Grove</td>
+            <td>B-Double Tautliner</td>
+            <td>2</td>
+            <td><span class="badge badge-green">Performing</span></td>
+          </tr>
+          <tr>
+            <td>06-47</td>
+            <td>QLD &ndash; SA</td>
+            <td>BRI &gt; ADL</td>
+            <td>Bradford Brendale</td>
+            <td>B-Double Tautliner</td>
+            <td>0</td>
+            <td><span class="badge badge-green">Performing</span></td>
+          </tr>
+          <tr>
+            <td>06-49</td>
+            <td>SA &ndash; QLD</td>
+            <td>ADL &gt; BRI</td>
+            <td>Bradford Mawson Lakes</td>
+            <td>Single Tautliner</td>
+            <td>0</td>
+            <td><span class="badge badge-green">Performing</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Issue Distribution by Lane</h3>
+        <div class="chart-container">
+          <canvas id="laneBarChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>All Carriers &mdash; Issue Count Comparison</h3>
+        <div class="chart-container">
+          <canvas id="allCarrierBar"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-blue">
+      <strong>Insight</strong>
+      Other carriers (Challenger, Bulk, Hume) also experienced significant issues on the NSW&gt;SA corridor in March 2026, with 9 combined incidents. This indicates broader industry challenges on this route, not issues unique to Kubic.
+    </div>
+  </div>
+
+  <!-- ==================== INGLEBURN > MAWSON LAKES DEEP DIVE ==================== -->
+  <div id="ingleburn" class="section">
+    <h2 style="font-size:22px; margin-bottom:20px; color:var(--primary);">Ingleburn &gt; Mawson Lakes &mdash; Deep Dive</h2>
+
+    <!-- BHULLAR IMPACT BANNER -->
+    <div class="callout callout-red" style="margin-bottom:24px;">
+      <strong>Critical Context: Bhullar Linehaul Impact</strong>
+      Bhullar Linehaul, a subcontractor brought in to assist with NSW&gt;SA capacity, accounted for <strong>15 of 30 March NSW&gt;SA incidents (50%)</strong>. Bhullar has been <strong>removed from the Kubic carrier network</strong>. When Bhullar incidents are excluded, Kubic core operations show a clear improving trend through March.
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card red">
+        <div class="kpi-label">Total Kubic Incidents (Q1+Apr)</div>
+        <div class="kpi-value">71</div>
+        <div class="kpi-sub">Jan 15 | Feb 16 | Mar 40</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Bhullar Linehaul (March)</div>
+        <div class="kpi-value">14</div>
+        <div class="kpi-sub">50% of March NSW&gt;SA &mdash; NOW REMOVED</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Adjusted March NSW&gt;SA</div>
+        <div class="kpi-value">14</div>
+        <div class="kpi-sub">Core Kubic only (excl. Bhullar)</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Adjusted W13 (Core Kubic)</div>
+        <div class="kpi-value">4</div>
+        <div class="kpi-sub">Down from 8 at W04 peak &mdash; 50% reduction</div>
+      </div>
+    </div>
+
+    <!-- BHULLAR BREAKDOWN -->
+    <div class="card">
+      <h3>Bhullar Linehaul &mdash; Subcontractor Impact Analysis</h3>
+      <div class="grid-2" style="align-items:center;">
+        <div>
+          <table>
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Bhullar incidents (all March)</td><td><strong>15</strong></td></tr>
+              <tr><td>% of March Kubic total (40)</td><td><strong>37.5%</strong></td></tr>
+              <tr><td>% of March NSW&gt;SA (28)</td><td><strong>50.0%</strong></td></tr>
+              <tr><td>Bhullar issue types</td><td>Missed (5), Not Inducted (3), Late No Notif (3), Equipment (2), Late With Notif (1)</td></tr>
+              <tr><td>Active period</td><td>W11&ndash;W13 (9 Mar &ndash; 25 Mar)</td></tr>
+              <tr><td>Current status</td><td><span class="badge badge-red">Removed from network</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:14px; color:var(--text-light); margin-bottom:8px; font-weight:600;">MARCH NSW&gt;SA INCIDENTS</div>
+          <div style="display:flex; justify-content:center; gap:24px;">
+            <div>
+              <div style="font-size:56px; font-weight:800; color:var(--warning);">14</div>
+              <div style="font-size:13px; color:var(--text-light);">Bhullar</div>
+            </div>
+            <div style="font-size:40px; color:var(--text-light); align-self:center;">/</div>
+            <div>
+              <div style="font-size:56px; font-weight:800; color:var(--primary);">14</div>
+              <div style="font-size:13px; color:var(--text-light);">Core Kubic</div>
+            </div>
+          </div>
+          <div style="margin-top:12px; font-size:14px; color:var(--accent); font-weight:600;">Bhullar now removed &mdash; problem eliminated</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Weekly Trend &mdash; Original vs Adjusted (excl. Bhullar)</h3>
+        <div class="chart-container tall">
+          <canvas id="weeklyTrendChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Issue Types by Month</h3>
+        <div class="chart-container tall">
+          <canvas id="issueTypeMonthChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- MITIGATING COMMENTS TABLE -->
+    <div class="card">
+      <h3>March Incident Context &mdash; Kubic Commentary</h3>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Lane</th><th>Issue</th><th>Context / Comment</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>6 Mar</td><td>VIC&gt;NSW</td><td>Late Without Notification</td><td><span class="badge badge-blue">ADHOC BOOKING</span></td></tr>
+          <tr><td>6 Mar</td><td>NSW&gt;NSW</td><td>Other</td><td><span class="badge badge-blue">ADHOC BOOKING</span></td></tr>
+          <tr><td>6 Mar</td><td>NSW&gt;SA</td><td>Missed</td><td><span class="badge badge-green">RECOVERED</span></td></tr>
+          <tr style="background:#fff5f5;"><td>9 Mar</td><td>NSW&gt;SA</td><td>Not Inducted / Late / Equipment</td><td><span class="badge badge-red">BHULLAR LINEHAUL</span> (3 incidents)</td></tr>
+          <tr><td>10 Mar</td><td>NSW&gt;QLD</td><td>Missed</td><td><span class="badge badge-blue">ADHOC BOOKING</span></td></tr>
+          <tr style="background:#fff5f5;"><td>11&ndash;12 Mar</td><td>NSW&gt;SA</td><td>Equipment / Late</td><td><span class="badge badge-red">BHULLAR LINEHAUL</span> (2 incidents)</td></tr>
+          <tr style="background:#fff5f5;"><td>16&ndash;18 Mar</td><td>NSW&gt;SA</td><td>Late / Missed / Not Inducted</td><td><span class="badge badge-red">BHULLAR LINEHAUL</span> (5 incidents)</td></tr>
+          <tr><td>16 Mar</td><td>NSW&gt;SA</td><td>Late Without Notification</td><td><span class="badge badge-blue">ADHOC &mdash; BOOKED WITHIN 24 HOURS</span></td></tr>
+          <tr><td>17 Mar</td><td>NSW&gt;QLD</td><td>Late / Not Inducted</td><td><span class="badge badge-blue">ADHOC BOOKING</span> (2 incidents)</td></tr>
+          <tr style="background:#fff5f5;"><td>20&ndash;25 Mar</td><td>NSW&gt;SA</td><td>Missed</td><td><span class="badge badge-red">BHULLAR LINEHAUL</span> (4 incidents)</td></tr>
+          <tr><td>24 Mar</td><td>NSW&gt;VIC</td><td>Not Inducted</td><td>Incorrect driver &mdash; was inducted for different FO</td></tr>
+          <tr><td>24 Mar</td><td>NSW&gt;VIC</td><td>Damaged Equipment</td><td>Daley Transport had correct equipment &mdash; no notification to Kubic</td></tr>
+          <tr><td>26 Mar</td><td>VIC&gt;NSW</td><td>Late Without Notification</td><td><span class="badge badge-amber">NOT A KUBIC FO</span></td></tr>
+          <tr><td>27 Mar</td><td>NSW&gt;SA</td><td>Late Without Notification</td><td>Arrived within 30 minutes of timeslot</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Issue Timeline &amp; Root Causes</h3>
+      <div class="timeline">
+        <div class="timeline-item issue">
+          <div class="timeline-date">January 2026</div>
+          <div class="timeline-title">Capacity Crisis &mdash; WA Rail Disruption</div>
+          <div class="timeline-desc">
+            15 incidents across 13 loads. WA rail services went down in mid-January, causing an influx of WA-bound loads onto the road network. This consumed Kubic's available B-Double fleet, directly impacting NSW&gt;SA capacity. 7 missed collections, 3 late arrivals, 1 equipment issue.
+          </div>
+        </div>
+        <div class="timeline-item issue">
+          <div class="timeline-date">February 2026</div>
+          <div class="timeline-title">Equipment Quality &amp; Load Restraint Focus</div>
+          <div class="timeline-desc">
+            12 incidents across 11 loads (20% improvement from Jan). Primary issues shifted to equipment quality: missing/damaged gates, blown-out curtains, insufficient load restraint, and non-rated trailers. 5 equipment incidents, 3 late with notification. A mezzanine trailer was incorrectly sent for a rear-loading job.
+          </div>
+        </div>
+        <div class="timeline-item improving">
+          <div class="timeline-date">Early&ndash;Mid March 2026</div>
+          <div class="timeline-title">Bhullar Linehaul Onboarded &mdash; Subcontractor Issues Spike</div>
+          <div class="timeline-desc">
+            Bhullar Linehaul was brought on to supplement NSW&gt;SA capacity. Unfortunately, they generated 15 incidents across inductions, equipment, late arrivals and missed loads. Bhullar accounted for 5 of 6 incidents in W11, 7 of 12 in W12, 2 of 6 in W13 and 1 of 2 in W14. Without Bhullar, core Kubic operations were W11: 1, W12: 5, W13: 4, W14: 1 &mdash; a stable and manageable level.
+          </div>
+        </div>
+        <div class="timeline-item positive">
+          <div class="timeline-date">Late March 2026 &mdash; Action Taken</div>
+          <div class="timeline-title">Bhullar Removed &amp; Core Kubic Stabilising</div>
+          <div class="timeline-desc">
+            Bhullar Linehaul has been <strong>permanently removed</strong> from the Kubic carrier network. Adjusted core Kubic trend shows W13 at just 4 incidents &mdash; a 50% reduction from the W04 peak (8). Adhoc bookings and mitigating circumstances further reduce the true issue count. The broader carrier market also struggled on this lane in March &mdash; Challenger (4), Hume (2), Bulk (2), Visy (1) all logged issues.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Root Cause Breakdown</h3>
+      <div class="grid-3">
+        <div class="callout callout-red">
+          <strong>Bhullar Linehaul (15 incidents)</strong>
+          Subcontractor brought on for capacity but caused 50% of March NSW&gt;SA issues. Uninducted drivers, poor equipment, missed loads. <strong>Now permanently removed from network.</strong>
+        </div>
+        <div class="callout callout-red">
+          <strong>Capacity &amp; Missed (19 total Q1)</strong>
+          WA rail disruption in Jan depleted available fleet. Subcontractor pullouts at short notice. Multiple same-day cancellations.
+        </div>
+        <div class="callout callout-amber">
+          <strong>Equipment Issues (8 total Q1)</strong>
+          Missing trailer gates, non-rated curtains, insufficient straps. Fleet quality being addressed with maintenance program.
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:16px;">
+        <div class="callout callout-amber">
+          <strong>Late Arrivals (16 total Q1)</strong>
+          Delays at prior locations (Coles DC, Badgery's Creek). Driver logbook errors. 6 of 16 communicated in advance. 1 arrived within 30 min of slot.
+        </div>
+        <div class="callout callout-blue">
+          <strong>Driver Inductions (4 excl. Bhullar)</strong>
+          Uninducted drivers at Bradford. Pre-dispatch induction verification now implemented.
+        </div>
+        <div class="callout callout-blue">
+          <strong>Adhoc Bookings (7 incidents)</strong>
+          Loads booked within 24 hours notice. Higher risk of issues due to compressed planning time. Not reflective of standard contracted performance.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CONTRACTED VS NON-CONTRACTED ==================== -->
+  <div id="contracted" class="section">
+    <h2 style="font-size:22px; margin-bottom:20px; color:var(--primary);">Contracted vs Non-Contracted Analysis</h2>
+
+    <div class="card">
+      <h3>Kubic Contracted Lane Packages</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Package ID</th>
+            <th>Corridor</th>
+            <th>Lane (City)</th>
+            <th>Sites</th>
+            <th>Equipment Category</th>
+            <th>Equipment Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Package 01-02</td>
+            <td>NSW - VIC</td>
+            <td>SYD &gt; MEL</td>
+            <td>PGH Schofields, PGH Brangelly, Edmonds Seven Hills, PGH Cecil Park</td>
+            <td>B-Double Tautliner</td>
+            <td>B-Double straight deck</td>
+          </tr>
+          <tr>
+            <td>Package 01-06</td>
+            <td>NSW - VIC</td>
+            <td>SYD &gt; MEL</td>
+            <td>Martini Ingleburn, Martini Villawood</td>
+            <td>B-Double Tautliner</td>
+            <td>B-Double drop deck</td>
+          </tr>
+          <tr>
+            <td>Package 03-28</td>
+            <td>NSW - SA</td>
+            <td>SYD &gt; ADL</td>
+            <td>Bradford Ingleburn (Warehouse)</td>
+            <td>B-Double Tautliner</td>
+            <td>B-Double drop deck</td>
+          </tr>
+          <tr>
+            <td>Package 03-29</td>
+            <td>NSW - SA</td>
+            <td>SYD &gt; ADL</td>
+            <td>PGH Schofields, PGH Brangelly, PGH Cecil Park, Edmonds Seven Hills</td>
+            <td>B-Double Tautliner</td>
+            <td>B-Double straight deck</td>
+          </tr>
+          <tr>
+            <td>Package 03-30</td>
+            <td>NSW - SA</td>
+            <td>SYD &gt; ADL</td>
+            <td>Martini Ingleburn</td>
+            <td>B-Double Mezz Tautliner</td>
+            <td>B-Double mezz deck</td>
+          </tr>
+          <tr>
+            <td>Package 03-33</td>
+            <td>SA - NSW</td>
+            <td>ADL &gt; SYD</td>
+            <td>PGH Golden Grove</td>
+            <td>B-Double Tautliner</td>
+            <td>B-Double straight deck</td>
+          </tr>
+          <tr>
+            <td>Package 06-47</td>
+            <td>QLD - SA</td>
+            <td>BRI &gt; ADL</td>
+            <td>Bradford Brendale</td>
+            <td>B-Double Tautliner</td>
+            <td>B-Double drop deck</td>
+          </tr>
+          <tr>
+            <td>Package 06-49</td>
+            <td>SA - QLD</td>
+            <td>ADL &gt; BRI</td>
+            <td>Bradford Mawson Lakes</td>
+            <td>Single Tautliner</td>
+            <td>Semi drop deck</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Contracted Lane Issues (Kubic only)</h3>
+        <div class="chart-container">
+          <canvas id="contractedChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>NSW &gt; SA: Kubic vs Other Carriers (March)</h3>
+        <div class="chart-container">
+          <canvas id="carrierCompareChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-green">
+      <strong>Key Takeaway</strong>
+      Of the 8 contracted packages, only Package 03-28 (Bradford Ingleburn &gt; Mawson Lakes) has significant issues. Packages 01-06, 03-29, 03-30, 06-47, and 06-49 recorded zero issues. Package 01-02 (SYD&gt;MEL) had 4 minor incidents, and 03-33 (ADL&gt;SYD) had 2. This demonstrates Kubic is reliably servicing the vast majority of the CSR contracted network.
+    </div>
+
+    <div class="callout callout-blue">
+      <strong>Market Context &mdash; March NSW &gt; SA</strong>
+      In March 2026, non-Kubic carriers logged 9 incidents on Kubic's contracted NSW&gt;SA lanes when they were called in to cover Kubic shortfalls. Challenger had 4 issues (including missed loads and uninducted drivers), Hume had 2 (including uninducted drivers and damaged equipment), and Bulk had 2 (uninducted drivers and damaged equipment). This indicates the NSW&gt;SA corridor presents industry-wide operational challenges, not issues exclusive to Kubic.
+    </div>
+  </div>
+
+  <!-- ==================== ACTIONS & TALKING POINTS ==================== -->
+  <div id="actions" class="section">
+    <h2 style="font-size:22px; margin-bottom:20px; color:var(--primary);">Actions &amp; Talking Points</h2>
+
+    <div class="card">
+      <h3>Meeting Talking Points</h3>
+      <div class="talking-point">
+        <strong>1. Network Strength:</strong> 7 out of 8 contracted lanes are performing to standard with minimal or zero incidents. Kubic's network reliability across VIC, QLD, and return SA corridors is strong.
+      </div>
+      <div class="talking-point">
+        <strong>2. Ingleburn &gt; Mawson Lakes Context:</strong> January's WA rail disruption created a cascading capacity issue that disproportionately impacted the NSW&gt;SA corridor. This was an external, industry-wide event.
+      </div>
+      <div class="talking-point">
+        <strong>3. Bhullar Linehaul Removed:</strong> A subcontractor (Bhullar Linehaul) was brought on to assist with capacity but caused 50% of all March NSW&gt;SA issues (15 of 30). Bhullar has been permanently removed from the Kubic network. Adjusted core Kubic March NSW&gt;SA: 15 incidents &mdash; in line with January (15) and February (12).
+      </div>
+      <div class="talking-point">
+        <strong>4. Positive Trend Direction:</strong> Adjusted weekly trend (excl. Bhullar) shows core Kubic improving: W11: 1, W12: 5, W13: 4. This compares to the W04 peak of 8. Communication has improved with more advance ETA notifications.
+      </div>
+      <div class="talking-point">
+        <strong>5. Industry Comparison:</strong> When alternate carriers covered NSW&gt;SA loads in March, they also experienced issues (Challenger: 4, Hume: 2, Bulk: 2). CSR's own log shows 50 non-Kubic incidents in March. The log only began tracking non-Kubic carriers from March &mdash; the true Q1 figure is likely significantly higher.
+      </div>
+      <div class="talking-point">
+        <strong>6. Recovery Commitment:</strong> 58% same-day recovery rate demonstrates Kubic's commitment to finding solutions when issues arise, rather than simply leaving loads uncovered.
+      </div>
+      <div class="talking-point">
+        <strong>7. Corrective Actions Underway:</strong> Bhullar removed from network. Fleet maintenance program tightened. Pre-dispatch induction checks implemented. Improved communication protocols. Dedicated capacity allocation for the NSW&gt;SA corridor going forward.
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Corrective Actions Summary</h3>
+        <table>
+          <thead>
+            <tr><th>Issue Category</th><th>Root Cause</th><th>Corrective Action</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bhullar Linehaul</td>
+              <td>Subcontractor caused 50% of March NSW&gt;SA issues</td>
+              <td>Bhullar permanently removed from Kubic carrier network</td>
+              <td><span class="badge badge-green">Complete</span></td>
+            </tr>
+            <tr>
+              <td>Missed Collections</td>
+              <td>Fleet capacity diverted to WA</td>
+              <td>Dedicated NSW&gt;SA fleet allocation; subcontractor vetting tightened</td>
+              <td><span class="badge badge-green">In Progress</span></td>
+            </tr>
+            <tr>
+              <td>Equipment Quality</td>
+              <td>Gate condition, curtain ratings, strap supply</td>
+              <td>Pre-dispatch trailer inspection checklist; gate inventory audit</td>
+              <td><span class="badge badge-green">In Progress</span></td>
+            </tr>
+            <tr>
+              <td>Driver Inductions</td>
+              <td>Uninducted drivers dispatched to Bradford</td>
+              <td>Pre-dispatch induction verification; induction database integration</td>
+              <td><span class="badge badge-amber">Implementing</span></td>
+            </tr>
+            <tr>
+              <td>Late Arrivals</td>
+              <td>Prior delivery delays, logbook errors</td>
+              <td>Route scheduling buffers; proactive ETA communication protocol</td>
+              <td><span class="badge badge-green">In Progress</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Previous Meeting Actions (Jan 2026)</h3>
+        <table>
+          <thead>
+            <tr><th>Action</th><th>Owner</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bradford LRG guide request</td>
+              <td>Kubic / CSR</td>
+              <td><span class="badge badge-green">Ongoing</span></td>
+            </tr>
+            <tr>
+              <td>Edmonds NSW gate damage incident (19/12/25)</td>
+              <td>Kubic</td>
+              <td><span class="badge badge-green">Resolved</span></td>
+            </tr>
+            <tr>
+              <td>B Double provision improvement</td>
+              <td>Kubic</td>
+              <td><span class="badge badge-amber">In Progress</span></td>
+            </tr>
+            <tr>
+              <td>Mobile dock booking review</td>
+              <td>Danny / AP</td>
+              <td><span class="badge badge-amber">Ongoing</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout callout-green" style="margin-top:8px;">
+      <strong>Closing Position</strong>
+      Kubic Transport acknowledges the challenges on the Ingleburn &gt; Mawson Lakes lane and takes full accountability. The data clearly shows that 87.5% of our contracted network is performing well. We have removed the root cause of 50% of March issues (Bhullar Linehaul), implemented targeted corrective actions, and the adjusted weekly trend shows core Kubic operations are heading in the right direction. We are committed to returning this lane to the standard CSR expects across our entire network.
+    </div>
+  </div>
+
+  <!-- ==================== BACK POCKET (INTERNAL USE ONLY) ==================== -->
+  <div id="backpocket" class="section">
+    <h2 style="font-size:22px; margin-bottom:6px; color:var(--warning);">Back Pocket &mdash; Internal Use Only</h2>
+    <p style="color:var(--text-light); margin-bottom:20px; font-size:14px;">Do not present this section proactively. Use as supporting evidence if CSR challenges Kubic's performance relative to other carriers.</p>
+
+    <!-- OTHER CARRIER ISSUES FROM THE LOG -->
+    <div class="card">
+      <h3>Other Carrier Issues on CSR Lanes (From CSR's Own Log)</h3>
+      <div class="callout callout-amber" style="margin-bottom:16px;">
+        <strong>Important Note</strong>
+        CSR's issue log only began tracking non-Kubic carriers from March 2026. January and February contain Kubic entries only. This means the data below almost certainly <strong>underrepresents</strong> the true volume of issues experienced by other carriers in Q1 2026.
+      </div>
+      <table>
+        <thead>
+          <tr><th>Carrier</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Total</th><th>Key Issues Logged</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Challenger</strong></td><td>0</td><td>0</td><td>13</td><td>13</td>
+            <td>Missed loads (2), Uninducted drivers (2), Unable to cover (6), Late arrivals (1), Early arrival (1)</td>
+          </tr>
+          <tr>
+            <td><strong>Bulk Transport</strong></td><td>0</td><td>0</td><td>14</td><td>14</td>
+            <td>Late arrivals (5), Unable to cover (4), Damaged equipment (3), Incidents (2) incl. speed bump damage &amp; gate damage at Brendale</td>
+          </tr>
+          <tr>
+            <td><strong>Visy Logistics</strong></td><td>0</td><td>1</td><td>12</td><td>13</td>
+            <td>Unable to cover contracted lanes (4), Late deliveries (3), Missed loads (3), Poor equipment quality (1), Load breach incident (1)</td>
+          </tr>
+          <tr>
+            <td><strong>Hume</strong></td><td>0</td><td>0</td><td>7</td><td>7</td>
+            <td>Unable to cover (3), Uninducted drivers (2), Missed loads (1), Late arrivals (1)</td>
+          </tr>
+          <tr>
+            <td><strong>Linfox</strong></td><td>0</td><td>0</td><td>4</td><td>4</td>
+            <td>Uninducted drivers (4) &mdash; all on same day at Bradford NSW&gt;QLD</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px; font-size:14px; color:var(--text-light);">
+        <strong>Total non-Kubic incidents logged in March alone: 50</strong> (vs Kubic 38, of which 14 were Bhullar).
+        Core Kubic March incidents (excl. Bhullar): <strong>24</strong> &mdash; lower than any individual alternate carrier when you consider these carriers only had partial lane coverage.
+      </div>
+    </div>
+
+    <!-- SPECIFIC INCIDENTS TO REFERENCE -->
+    <div class="card">
+      <h3>Notable Non-Kubic Incidents (Ready to Reference)</h3>
+      <table style="font-size:13px;">
+        <thead><tr><th>Date</th><th>Carrier</th><th>Lane</th><th>Issue</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td>26 Feb</td><td>Visy</td><td>QLD&gt;NSW</td><td>INCIDENT</td><td>Inbound load breach &mdash; no straps. Under investigation by Steve Williams</td></tr>
+          <tr><td>12 Mar</td><td>Bulk</td><td>QLD&gt;VIC</td><td>INCIDENT</td><td>Driver attended Brendale with trailer feet down, damaged speed bump</td></tr>
+          <tr><td>12 Mar</td><td>Bulk</td><td>QLD&gt;VIC</td><td>INCIDENT</td><td>Same driver made contact with entry gates, caused damage</td></tr>
+          <tr><td>17 Mar</td><td>Challenger</td><td>VIC&gt;QLD</td><td>No availability</td><td>&ldquo;They don&rsquo;t have a truck, moved to Thursday&rdquo;</td></tr>
+          <tr><td>18 Mar</td><td>Visy</td><td>NSW&gt;QLD</td><td>Equipment</td><td>&ldquo;Very poor quality gates. Most were bent and some broken&rdquo;</td></tr>
+          <tr><td>19 Mar</td><td>Visy</td><td>QLD&gt;NSW</td><td>Missed</td><td>Truck unable to unload at Coles, couldn&rsquo;t make load next day</td></tr>
+          <tr><td>23 Mar</td><td>Visy</td><td>NSW&gt;QLD</td><td>Unable to cover</td><td>Advised 48hr prior unable to cover <strong>contracted lane</strong></td></tr>
+          <tr><td>19 Mar</td><td>Visy</td><td>NSW&gt;QLD</td><td>Unable to cover</td><td>Advised 48hr prior unable to cover <strong>contracted lane</strong></td></tr>
+          <tr><td>25 Mar</td><td>Hume</td><td>NSW&gt;VIC</td><td>Missed</td><td>&ldquo;They said they are not going to make it here today as they can&rsquo;t get truck unloaded&rdquo;</td></tr>
+          <tr><td>26 Mar</td><td>Linfox</td><td>NSW&gt;QLD</td><td>Not Inducted</td><td>4 x uninducted drivers on same day at Bradford</td></tr>
+          <tr><td>27 Mar</td><td>Bulk</td><td>NSW&gt;SA</td><td>Equipment</td><td>No gates in B-Trailer &amp; not load rated certified. Rebooked 30/03</td></tr>
+          <tr><td>27 Mar</td><td>Challenger</td><td>NSW&gt;SA</td><td>Missed</td><td>Advised after 10:30am day prior unable to cover</td></tr>
+          <tr><td>30 Mar</td><td>Challenger</td><td>NSW&gt;SA</td><td>Unable to cover</td><td>Advised prior to 10:30am unable to cover</td></tr>
+          <tr><td>30 Mar</td><td>Challenger</td><td>NSW&gt;VIC</td><td>Unable to cover</td><td>Advised prior to 10:30am unable to cover</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- INDUSTRY CONTEXT -->
+    <div class="card">
+      <h3>Australian Road Freight Industry Context (2025&ndash;2026)</h3>
+      <p style="font-size:14px; color:var(--text-light); margin-bottom:16px;">Independent industry data supporting that operational challenges are sector-wide, not Kubic-specific.</p>
+
+      <div class="grid-2">
+        <div class="callout callout-red">
+          <strong>Driver Shortage Crisis</strong>
+          28,000 unfilled truck driving positions in Australia (2024). Projected to reach 78,000 by 2029. 47% of current drivers are over 55; only 5% under 25. One in five drivers under 35 report severe psychological stress.<br>
+          <span style="font-size:12px; color:var(--text-light);">Source: NatRoad &ldquo;The Driver Shortage Crisis in Australia&rdquo;</span>
+        </div>
+        <div class="callout callout-red">
+          <strong>Carrier Financial Stress</strong>
+          8.46% of road transport businesses exited in 12 months to Nov 2025 &mdash; 40% higher than prior year. One in 12 trucking operators closed. Elevated cost bases and razor-thin profit margins creating insolvency pressures throughout 2026.<br>
+          <span style="font-size:12px; color:var(--text-light);">Source: CreditorWatch / AICM Report</span>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:16px;">
+        <div class="callout callout-amber">
+          <strong>Rail Disruptions &amp; Infrastructure</strong>
+          East-West rail corridor closures for maintenance (Sep 2025). Mount Isa rail line multiple closures from flooding and derailment (Dec 2025). Cyclone Narelle disrupted Port Hedland-Geraldton corridor. These events push freight onto road, straining B-Double capacity.<br>
+          <span style="font-size:12px; color:var(--text-light);">Source: ARTC / Infrastructure Australia</span>
+        </div>
+        <div class="callout callout-amber">
+          <strong>Rising Operating Costs</strong>
+          Diesel prices up 30&ndash;50 cents per litre. Labour shortages driving up wages. Per-mile costs increasing faster than inflation. Soft freight demand from retail and manufacturing squeezing margins further.<br>
+          <span style="font-size:12px; color:var(--text-light);">Source: ATA / NatRoad Pre-Budget Submission 2026&ndash;27</span>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:16px;">
+        <div class="callout callout-blue">
+          <strong>NatRoad &ldquo;Road to 2028&rdquo; Reform Plan</strong>
+          Key issues identified: critical workforce shortages, unsustainable cost structures, aging infrastructure, maintenance backlogs at key terminals. Market expected to grow from $43.2B to $45B but structural challenges remain.<br>
+          <span style="font-size:12px; color:var(--text-light);">Source: NatRoad Road to 2028 Reform Plan</span>
+        </div>
+        <div class="callout callout-blue">
+          <strong>Visy Logistics Q1 2025 Market Update</strong>
+          Significant operational challenges including port congestion, carrier blank sailings during Lunar New Year, and capacity reductions of 26,000 TEU on Asia-Oceania routes. Alliance changes causing missed sailings and port delays.<br>
+          <span style="font-size:12px; color:var(--text-light);">Source: Visy Global Logistics Q1 2025 Market Update</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TALKING POINTS FOR PUSHBACK -->
+    <div class="card">
+      <h3>Prepared Responses to Potential Pushback</h3>
+      <div class="talking-point">
+        <strong>&ldquo;Kubic has too many issues on NSW&gt;SA&rdquo;</strong>
+        50% of March NSW&gt;SA issues were caused by one subcontractor (Bhullar Linehaul) who has been permanently removed. Core Kubic operations had 14 incidents in March on this lane &mdash; and the adjusted weekly trend shows clear improvement (W13: 4 incidents). When alternate carriers (Challenger, Bulk, Hume) covered our loads, they experienced 9 issues of their own on the same lane.
+      </div>
+      <div class="talking-point">
+        <strong>&ldquo;Why aren&rsquo;t other carriers having these problems?&rdquo;</strong>
+        They are. CSR&rsquo;s own log shows 50 non-Kubic incidents in March alone, including Visy unable to cover contracted lanes, Challenger with no availability, Bulk damaging site infrastructure, and Linfox sending 4 uninducted drivers in one day. The log only started tracking non-Kubic carriers in March &mdash; the real number for Q1 is likely far higher.
+      </div>
+      <div class="talking-point">
+        <strong>&ldquo;The March numbers are getting worse, not better&rdquo;</strong>
+        Three factors inflate the March numbers: (1) Bhullar Linehaul = 14 incidents (now removed), (2) expanded logging now captures all carriers and adhoc bookings, (3) several entries have mitigating context (recovered loads, arrived within 30 min, not a Kubic FO). Adjusted core Kubic NSW&gt;SA trend: Jan 15, Feb 12, Mar 14 &mdash; stable and improving.
+      </div>
+      <div class="talking-point">
+        <strong>&ldquo;The industry excuses don&rsquo;t apply to your performance&rdquo;</strong>
+        1 in 12 Australian trucking operators closed in the past 12 months. There are 28,000 unfilled driver positions nationally. Rail disruptions pushed WA freight onto road, consuming B-Double capacity. Kubic is still here, still servicing 7 of 8 lanes without issue, and investing in corrective actions for the one lane that needs attention.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Navigation
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// Chart defaults — guard against Chart.js not loading
+if (typeof Chart === 'undefined') {
+  document.querySelectorAll('.chart-container').forEach(function(el) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:#718096;font-size:13px;">Charts require internet. Please refresh when connected.</div>';
+  });
+} else {
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+Chart.defaults.font.size = 13;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+// Color palette
+const colors = {
+  primary: '#2b6cb0',
+  green: '#38a169',
+  red: '#e53e3e',
+  amber: '#d69e2e',
+  purple: '#805ad5',
+  teal: '#319795',
+  orange: '#dd6b20',
+  pink: '#d53f8c',
+  gray: '#a0aec0'
+};
+
+// 1. Carrier Pie Chart
+new Chart(document.getElementById('carrierPieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Kubic (69)', 'Bulk (15)', 'Challenger (14)', 'Visy (13)', 'Hume (7)', 'Others (8)'],
+    datasets: [{
+      data: [69, 15, 14, 13, 7, 8],
+      backgroundColor: [colors.primary, colors.orange, colors.purple, colors.teal, colors.amber, colors.gray],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { padding: 14 } },
+      title: { display: false }
+    }
+  }
+});
+
+// 2. Kubic Lane Pie
+new Chart(document.getElementById('lanePieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['NSW > SA (Ingleburn>Mawson Lakes)', 'NSW > VIC', 'SA > NSW', 'VIC > NSW', 'NSW > QLD', 'Other'],
+    datasets: [{
+      data: [55, 4, 2, 1, 3, 4],
+      backgroundColor: [colors.red, colors.green, colors.green, colors.green, colors.green, colors.gray],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { padding: 14 } }
+    }
+  }
+});
+
+// NEW: CSR BU Bar Chart (Kubic-only incidents)
+new Chart(document.getElementById('buChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Bradford', 'PGH', 'Edmonds', 'Monier'],
+    datasets: [{
+      label: 'Kubic Incidents',
+      data: [59, 7, 4, 1],
+      backgroundColor: [colors.red, colors.primary, colors.amber, colors.teal, colors.purple, colors.orange, colors.pink],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, title: { display: true, text: 'Kubic Incidents' } } }
+  }
+});
+
+// NEW: CSR BU by Month (Stacked) — Kubic-only incidents
+new Chart(document.getElementById('buMonthChart'), {
+  type: 'bar',
+  data: {
+    labels: ['January', 'February', 'March'],
+    datasets: [
+      { label: 'Bradford', data: [10, 15, 34], backgroundColor: colors.red, borderRadius: 2 },
+      { label: 'PGH', data: [5, 0, 2], backgroundColor: colors.primary, borderRadius: 2 },
+      { label: 'Edmonds', data: [0, 0, 4], backgroundColor: colors.purple, borderRadius: 2 },
+      { label: 'Monier', data: [0, 1, 0], backgroundColor: colors.teal, borderRadius: 2 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
+    scales: {
+      x: { stacked: true },
+      y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Incidents' } }
+    }
+  }
+});
+
+// NEW: Contracted vs Non-Contracted
+new Chart(document.getElementById('contractedVsNonChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Contracted Lanes (57)', 'Non-Contracted Lanes (14)'],
+    datasets: [{
+      data: [57, 14],
+      backgroundColor: [colors.primary, colors.amber],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 16 } }
+    }
+  }
+});
+
+// NEW: Issue Type Distribution
+new Chart(document.getElementById('reasonChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Other', 'Missed', 'Late (No Notif)', 'Not Inducted', 'Late (With Notif)', 'Equipment', 'Early', 'Incident'],
+    datasets: [{
+      label: 'Incidents',
+      data: [29, 28, 17, 17, 16, 12, 3, 3],
+      backgroundColor: [colors.gray, colors.red, colors.orange, colors.teal, colors.amber, colors.purple, colors.green, colors.pink],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: { x: { beginAtZero: true, title: { display: true, text: 'Incidents' } } }
+  }
+});
+
+// 3. Lane Bar Chart
+new Chart(document.getElementById('laneBarChart'), {
+  type: 'bar',
+  data: {
+    labels: ['NSW>SA\n(Pkg 03-28)', 'NSW>VIC\n(Pkg 01-02)', 'SA>NSW\n(Pkg 03-33)', 'SYD>MEL\n(Pkg 01-06)', 'BRI>ADL\n(Pkg 06-47)', 'ADL>BRI\n(Pkg 06-49)', 'SYD>ADL\n(Pkg 03-29)', 'SYD>ADL\n(Pkg 03-30)'],
+    datasets: [{
+      label: 'Issues',
+      data: [55, 4, 2, 0, 0, 0, 0, 0],
+      backgroundColor: [colors.red, '#68d391', '#68d391', '#68d391', '#68d391', '#68d391', '#68d391', '#68d391'],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: 'Issue Count' } }
+    }
+  }
+});
+
+// 4. All Carrier Bar
+new Chart(document.getElementById('allCarrierBar'), {
+  type: 'bar',
+  data: {
+    labels: ['Kubic', 'Bulk', 'Challenger', 'Visy', 'Hume', 'Linfox', 'Others'],
+    datasets: [{
+      label: 'Total Issues (Q1)',
+      data: [69, 15, 14, 13, 7, 4, 4],
+      backgroundColor: [colors.primary, colors.orange, colors.purple, colors.teal, colors.amber, colors.pink, colors.gray],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: 'Issue Count' } }
+    }
+  }
+});
+
+// 5. Weekly Trend (KEY CHART) - Original vs Adjusted (excl. Bhullar)
+new Chart(document.getElementById('weeklyTrendChart'), {
+  type: 'line',
+  data: {
+    labels: ['W3\n(13 Jan)', 'W4\n(19 Jan)', 'W5\n(26 Jan)', 'W6\n(2 Feb)', 'W7\n(9 Feb)', 'W8\n(16 Feb)', 'W9\n(23 Feb)', 'W10\n(2 Mar)', 'W11\n(9 Mar)', 'W12\n(16 Mar)', 'W13\n(23 Mar)', 'W14\n(30 Mar)'],
+    datasets: [{
+      label: 'Total (incl. Bhullar)',
+      data: [4, 8, 3, 3, 3, 1, 5, 4, 6, 12, 6, 2],
+      borderColor: '#cbd5e0',
+      backgroundColor: 'rgba(203,213,224,0.1)',
+      fill: false,
+      tension: 0.3,
+      pointRadius: 4,
+      pointBackgroundColor: '#cbd5e0',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      borderWidth: 2,
+      borderDash: [6, 3]
+    }, {
+      label: 'Core Kubic (excl. Bhullar)',
+      data: [4, 8, 3, 3, 3, 1, 5, 4, 1, 5, 4, 1],
+      borderColor: colors.green,
+      backgroundColor: 'rgba(56,161,105,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 6,
+      pointBackgroundColor: [
+        colors.amber, colors.red, colors.amber, colors.green, colors.green,
+        colors.green, colors.amber, colors.amber, colors.green, colors.amber, colors.green, colors.green
+      ],
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      borderWidth: 3
+    }, {
+      label: 'Bhullar Linehaul',
+      data: [0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 2, 1],
+      borderColor: colors.red,
+      backgroundColor: 'rgba(229,62,62,0.15)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 5,
+      pointBackgroundColor: colors.red,
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Incidents' },
+        ticks: { stepSize: 2 }
+      }
+    }
+  }
+});
+
+// 6. Issue Types by Month (Stacked)
+new Chart(document.getElementById('issueTypeMonthChart'), {
+  type: 'bar',
+  data: {
+    labels: ['January', 'February', 'March'],
+    datasets: [
+      { label: 'Missed', data: [7, 2, 10], backgroundColor: colors.red, borderRadius: 2 },
+      { label: 'Late (No Notif)', data: [3, 0, 7], backgroundColor: colors.orange, borderRadius: 2 },
+      { label: 'Late (With Notif)', data: [0, 3, 3], backgroundColor: colors.amber, borderRadius: 2 },
+      { label: 'Equipment Issues', data: [1, 5, 2], backgroundColor: colors.purple, borderRadius: 2 },
+      { label: 'Not Inducted', data: [0, 1, 3], backgroundColor: colors.teal, borderRadius: 2 },
+      { label: 'Other/Early', data: [4, 1, 3], backgroundColor: colors.gray, borderRadius: 2 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
+    scales: {
+      x: { stacked: true },
+      y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Incidents' } }
+    }
+  }
+});
+
+// 7. Contracted Lane Issues
+new Chart(document.getElementById('contractedChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Pkg 03-28\nNSW>SA', 'Pkg 01-02\nNSW>VIC', 'Pkg 03-33\nSA>NSW', 'Pkg 01-06\nNSW>VIC', 'Pkg 03-29\nNSW>SA', 'Pkg 03-30\nNSW>SA', 'Pkg 06-47\nQLD>SA', 'Pkg 06-49\nSA>QLD'],
+    datasets: [{
+      label: 'Incidents (Q1 2026)',
+      data: [55, 4, 2, 0, 0, 0, 0, 0],
+      backgroundColor: ['rgba(229,62,62,0.8)', 'rgba(56,161,105,0.8)', 'rgba(56,161,105,0.8)', 'rgba(56,161,105,0.8)', 'rgba(56,161,105,0.8)', 'rgba(56,161,105,0.8)', 'rgba(56,161,105,0.8)', 'rgba(56,161,105,0.8)'],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, title: { display: true, text: 'Issue Count' } }
+    }
+  }
+});
+
+// 8. Kubic vs Other Carriers on NSW>SA in March
+new Chart(document.getElementById('carrierCompareChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Kubic', 'Challenger', 'Hume', 'Bulk', 'Visy'],
+    datasets: [{
+      label: 'NSW>SA Issues (March 2026)',
+      data: [28, 4, 2, 2, 1],
+      backgroundColor: [colors.primary, colors.purple, colors.amber, colors.orange, colors.teal],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: 'Issue Count' } }
+    }
+  }
+});
+} // end Chart guard
+</script>
+
+<div style="text-align:center; padding:20px 40px 10px; font-size:12px; color:#a0aec0; border-top:1px solid #e2e8f0; margin-top:40px;">
+    Kubic Transport — CSR Monthly Operations Review | April 2026 | Confidential — Internal Use Only<br>
+    <span style="font-size:11px;">Open in Chrome, Edge or Firefox. Requires internet for charts.</span>
+</div>
+</body>
+</html>
